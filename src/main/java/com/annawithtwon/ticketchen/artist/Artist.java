@@ -12,6 +12,8 @@ public class Artist {
     @Column(nullable = false)
     private String name;
 
+    public Artist() { }
+
     public Artist(String name) {
         this.name = name;
     }

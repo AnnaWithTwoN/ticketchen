@@ -2,11 +2,11 @@ package com.annawithtwon.ticketchen.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
 
-    public ResourceNotFoundException(String resource) {
-        super(resource + " not found");
+    public ResourceNotFoundException(ErrorMessage message) {
+        super(message.toString());
     }
 
-    public ResourceNotFoundException(String resource, Throwable cause) {
-        super(resource + " not found", cause);
+    public ResourceNotFoundException(ErrorMessage message, Throwable cause) {
+        super(message.toString(), cause);
     }
 }

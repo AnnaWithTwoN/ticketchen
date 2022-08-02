@@ -1,5 +1,6 @@
 package com.annawithtwon.ticketchen.artist;
 
+import com.annawithtwon.ticketchen.exception.ErrorMessage;
 import com.annawithtwon.ticketchen.exception.ResourceExistsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,7 +12,6 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +32,7 @@ class ArtistServiceTest {
         when(repository.findAll()).thenReturn(expectedArtists);
 
         // act
-        List<Artist> artists = service.getArtists();
+        List<Artist> artists = service.getAllArtists();
 
         // assert
         assertThat(artists).isEqualTo(expectedArtists);
@@ -54,9 +54,8 @@ class ArtistServiceTest {
     @Test
     void shouldThrowArtistExistsException() {
         // arrange
-        when(repository.save(any())).thenThrow(new ResourceExistsException("Artist"));
-        // TODO: add enum/macro messages
-        String expectedMessage = "Artist already exists";
+        when(repository.save(any())).thenThrow(new ResourceExistsException(ErrorMessage.ARTIST_EXISTS));
+        String expectedMessage = ErrorMessage.ARTIST_EXISTS.toString();
 
         // act
         // assert
