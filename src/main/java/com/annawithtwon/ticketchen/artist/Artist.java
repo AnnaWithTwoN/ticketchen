@@ -1,6 +1,11 @@
 package com.annawithtwon.ticketchen.artist;
 
+import com.annawithtwon.ticketchen.event.Event;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -10,7 +15,11 @@ public class Artist {
     private UUID id;
 
     @Column(nullable = false)
-    private String name;
+    private String name; // TODO: add unique constraint
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "participatingArtists")
+    private Set<Event> events = new HashSet<>();
 
     public Artist() { }
 
@@ -32,5 +41,13 @@ public class Artist {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Set<Event> getEvents() {
+        return events;
+    }
+
+    public void setEvents(Set<Event> events) {
+        this.events = events;
     }
 }

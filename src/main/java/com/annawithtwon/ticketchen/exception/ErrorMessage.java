@@ -2,7 +2,9 @@ package com.annawithtwon.ticketchen.exception;
 
 public enum ErrorMessage {
     ARTIST_NOT_FOUND(createNotFoundErrorMessage("Artist")),
-    ARTIST_EXISTS(createExistsErrorMessage("Artist"));
+    EVENT_NOT_FOUND(createNotFoundErrorMessage("Event")),
+    ARTIST_EXISTS(createExistsErrorMessage("Artist")),
+    EVENT_EXISTS(createExistsErrorMessage("Event"));
 
     private final String message;
 
