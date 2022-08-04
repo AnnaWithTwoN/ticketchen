@@ -35,11 +35,11 @@ public class EventService {
         return event.get();
     }
 
-    public Event createEvent(EventCreateRequestBody event) {
-        if (event.getParticipatingArtistIds().isEmpty()) {
+    public Event createEvent(Event event) {
+        /*if (event.getParticipatingArtistIds().isEmpty()) {
             throw new ResourceNotFoundException(ErrorMessage.ARTIST_EXISTS);
-        }
-        Event newEvent = new Event(
+        }*/
+        /*Event newEvent = new Event(
                 event.getName(),
                 event.getLocation(),
                 event.getDate());
@@ -47,7 +47,7 @@ public class EventService {
             Artist artist = artistService.getOneArtist(artistId);
             // TODO: check if artist already has event on the date
             newEvent.addParticipatingArtist(artist);
-        }
-        return eventRepository.save(newEvent);
+        }*/
+        return eventRepository.save(event);
     }
 }

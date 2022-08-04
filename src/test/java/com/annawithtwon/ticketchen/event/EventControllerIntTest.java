@@ -35,13 +35,6 @@ class EventControllerIntTest {
     @Autowired
     private ArtistRepository artistRepository;
 
-    private Artist artist;
-
-    @BeforeEach
-    private void setup() {
-        artist = artistRepository.save(new Artist("artist"));
-    }
-
     @AfterEach
     private void truncateDb() {
         eventRepository.deleteAll();
@@ -72,6 +65,7 @@ class EventControllerIntTest {
 
     @Test
     void shouldGetOneEvent() throws Exception {
+        Artist artist = artistRepository.save(new Artist("artist"));
         Event expectedEvent = new Event(
                 "name",
                 "country",
@@ -107,6 +101,7 @@ class EventControllerIntTest {
 
     @Test
     void shouldCreateArtist() throws Exception {
+        Artist artist = artistRepository.save(new Artist("artist"));
         MvcResult result = mockMvc.perform(
                         post("/events")
                                 .content("{\n" +
@@ -132,6 +127,23 @@ class EventControllerIntTest {
     }
 
     @Test
+    void shouldReturnErrorWhenNoArtistProvided() throws Exception {
+        String expectedErrorMessage = ErrorMessage.ARTIST_NOT_FOUND.toString();
+        mockMvc.perform(
+                post("/events")
+                        .content("{\n" +
+                                "    \"name\": \"Hellfest\",\n" +
+                                "    \"location\": \"Clisson, France\",\n" +
+                                "    \"date\": \"2022-05-14T14:20:32.0+07:00\",\n" +
+                                "}")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message")
+                        .value(expectedErrorMessage));
+    }
+
+    @Test
     void shouldReturnErrorWhenArtistDoesNotExist() throws Exception {
         String expectedErrorMessage = ErrorMessage.ARTIST_NOT_FOUND.toString();
         mockMvc.perform(
@@ -145,6 +157,7 @@ class EventControllerIntTest {
                                         "    ]\n" +
                                         "}")
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message")

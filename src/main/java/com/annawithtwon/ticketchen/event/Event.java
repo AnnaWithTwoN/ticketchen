@@ -1,14 +1,20 @@
 package com.annawithtwon.ticketchen.event;
 
 import com.annawithtwon.ticketchen.artist.Artist;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
+@JsonDeserialize(using = EventDeserializer.class)
 public class Event {
 
     @Id
@@ -16,18 +22,26 @@ public class Event {
     private UUID id;
 
     @Column(nullable = false)
+    @NotNull
+    @NotEmpty
     private String name;
 
     @Column(nullable = false)
+    @NotNull
+    @NotEmpty
     private String location;
 
     @Column(nullable = false)
+    @NotNull
+    // TODO: ensure date is not in the past
     private OffsetDateTime date;
 
     @ManyToMany
     @JoinTable(name = "artist_event",
             joinColumns = { @JoinColumn(name = "artist_id") },
             inverseJoinColumns = { @JoinColumn(name = "event_id") })
+    @NotNull
+    @NotEmpty
     private Set<Artist> participatingArtists = new HashSet<>();
 
     public Event() {
