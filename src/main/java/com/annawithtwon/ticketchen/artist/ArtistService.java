@@ -24,7 +24,7 @@ public class ArtistService {
         return artistRepository.findAll();
     }
 
-    public Artist getOneArtist(UUID id) {
+    public Artist getOneArtist(UUID id) throws ResourceNotFoundException {
         Optional<Artist> artist = artistRepository.findById(id) ;
         if (!artist.isPresent()) {
             throw new ResourceNotFoundException(ErrorMessage.ARTIST_NOT_FOUND);
