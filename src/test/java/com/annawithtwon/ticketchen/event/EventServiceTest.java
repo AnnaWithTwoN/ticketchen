@@ -39,14 +39,14 @@ class EventServiceTest {
     void shouldThrowExWhenEventsDoesNotExist() {
         // arrange
         UUID randomId = UUID.randomUUID();
-        when(eventRepository.findById(randomId)).thenThrow(new ResourceNotFoundException(ErrorMessage.EVENT_NOT_FOUND));
-        String expectedMessage = ErrorMessage.EVENT_NOT_FOUND.toString();
+        ErrorMessage expectedMessage = ErrorMessage.EVENT_NOT_FOUND;
+        when(eventRepository.findById(randomId)).thenThrow(new ResourceNotFoundException(expectedMessage));
 
         // act
         // assert
         assertThatThrownBy(() -> eventService.getOneEvent(randomId))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage(expectedMessage);
+                .hasMessage(expectedMessage.toString());
     }
 
     @Test
@@ -83,13 +83,13 @@ class EventServiceTest {
                 OffsetDateTime.now(),
                 Set.of(artistId)
         );
+        ErrorMessage expectedMessage = ErrorMessage.ARTIST_NOT_FOUND;
         when(artistService.getOneArtist(artistId)).thenThrow(new ResourceNotFoundException(ErrorMessage.ARTIST_NOT_FOUND));
-        String expectedMessage = ErrorMessage.ARTIST_NOT_FOUND.toString();
 
         // act
         // assert
         assertThatThrownBy(() -> eventService.createEvent(expectedEvent))
                 .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage(expectedMessage);
+                .hasMessage(expectedMessage.toString());
     }
 }
