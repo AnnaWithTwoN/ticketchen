@@ -1,5 +1,7 @@
 package com.annawithtwon.ticketchen.artist;
 
+import com.annawithtwon.ticketchen.event.Event;
+import com.annawithtwon.ticketchen.event.EventRepository;
 import com.annawithtwon.ticketchen.exception.ErrorMessage;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.AfterEach;
@@ -11,8 +13,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -30,11 +34,14 @@ class ArtistControllerIntTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private ArtistRepository repository;
+    private ArtistRepository artistRepository;
+    @Autowired
+    private EventRepository eventRepository;
 
     @AfterEach
     private void truncateDb() {
-        repository.deleteAll();
+        eventRepository.deleteAll();
+        artistRepository.deleteAll();
     }
 
     @Test
@@ -45,7 +52,7 @@ class ArtistControllerIntTest {
                 new Artist("artist2"),
                 new Artist("artist3")
         );
-        repository.saveAll(expectedArtists);
+        artistRepository.saveAll(expectedArtists);
 
         // act - assert
         mockMvc.perform(
@@ -55,12 +62,13 @@ class ArtistControllerIntTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.*", hasSize(3)))
                 .andExpect(jsonPath("$.*.id").exists())
-                .andExpect(jsonPath("$.*.name").exists());
+                .andExpect(jsonPath("$.*.name").exists())
+                .andExpect(jsonPath("$.*.numberOfEvents").exists());
     }
 
     @Test
     void shouldGetOneArtist() throws Exception {
-        Artist artist = repository.save(new Artist("artist"));
+        Artist artist = artistRepository.save(new Artist("artist"));
 
         mockMvc.perform(
                     get("/artists/" + artist.getId())
@@ -68,7 +76,23 @@ class ArtistControllerIntTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(artist.getId().toString()))
-                .andExpect(jsonPath("$.name").value(artist.getName()));
+                .andExpect(jsonPath("$.name").value(artist.getName()))
+                .andExpect(jsonPath("$.numberOfEvents").value(0));
+    }
+
+    @Test
+    void shouldGetArtistWithRightNumberOfEvents() throws Exception {
+        Artist artist = artistRepository.save(new Artist("artist"));
+        eventRepository.save(new Event("name", "location", OffsetDateTime.now(), Set.of(artist)));
+
+        mockMvc.perform(
+                        get("/artists/" + artist.getId())
+                )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(artist.getId().toString()))
+                .andExpect(jsonPath("$.name").value(artist.getName()))
+                .andExpect(jsonPath("$.numberOfEvents").value(1));
     }
 
     @Test
@@ -100,7 +124,7 @@ class ArtistControllerIntTest {
                 .andReturn();
 
         String id = JsonPath.read(result.getResponse().getContentAsString(), "$.id");
-        Optional<Artist> savedArtist = repository.findById(UUID.fromString(id));
+        Optional<Artist> savedArtist = artistRepository.findById(UUID.fromString(id));
         assertThat(savedArtist).isPresent();
         assertThat(savedArtist.get().getName()).isEqualTo(name);
     }
@@ -108,7 +132,7 @@ class ArtistControllerIntTest {
     @Test
     void shouldReturnArtistExistsError() throws Exception {
         String name = "Sabaton";
-        repository.save(new Artist(name));
+        artistRepository.save(new Artist(name));
         String expectedErrorMessage = ErrorMessage.ARTIST_EXISTS.toString();
 
         mockMvc.perform(

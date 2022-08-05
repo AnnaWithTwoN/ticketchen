@@ -36,12 +36,17 @@ public class Event {
     // TODO: ensure date is not in the past
     private OffsetDateTime date;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            })
     @JoinTable(name = "artist_event",
-            joinColumns = { @JoinColumn(name = "artist_id") },
-            inverseJoinColumns = { @JoinColumn(name = "event_id") })
+            joinColumns = { @JoinColumn(name = "event_id") },
+            inverseJoinColumns = { @JoinColumn(name = "artist_id") })
     @NotNull
     @NotEmpty
+    // TODO: add cascade
     private Set<Artist> participatingArtists = new HashSet<>();
 
     public Event() {

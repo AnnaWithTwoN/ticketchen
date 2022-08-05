@@ -2,6 +2,7 @@ package com.annawithtwon.ticketchen.artist;
 
 import com.annawithtwon.ticketchen.event.Event;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.Formula;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -20,6 +21,9 @@ public class Artist {
     @JsonIgnore
     @ManyToMany(mappedBy = "participatingArtists")
     private Set<Event> events = new HashSet<>();
+
+    @Formula(value = "(SELECT COUNT(*) FROM public.artist_event e WHERE e.artist_id=id)")
+    private Integer numberOfEvents;
 
     public Artist() { }
 
@@ -49,5 +53,13 @@ public class Artist {
 
     public void setEvents(Set<Event> events) {
         this.events = events;
+    }
+
+    public Integer getNumberOfEvents() {
+        return numberOfEvents;
+    }
+
+    public void setNumberOfEvents(Integer numberOfEvents) {
+        this.numberOfEvents = numberOfEvents;
     }
 }
