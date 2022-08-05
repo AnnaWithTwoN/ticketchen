@@ -1,7 +1,8 @@
 package com.annawithtwon.ticketchen.event;
 
 import com.annawithtwon.ticketchen.artist.Artist;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.annawithtwon.ticketchen.ticket.Ticket;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -12,7 +13,6 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@JsonDeserialize(using = EventDeserializer.class)
 public class Event {
 
     @Id
@@ -43,6 +43,11 @@ public class Event {
     @NotEmpty
     private Set<Artist> participatingArtists = new HashSet<>(); // TODO: add cascade
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL)
+    private Set<Ticket> tickets = new HashSet<>();
+
     public Event() {
     }
 
@@ -58,6 +63,8 @@ public class Event {
         this.date = date;
         this.participatingArtists = participatingArtists;
     }
+
+
 
     public UUID getId() {
         return id;
@@ -101,5 +108,13 @@ public class Event {
 
     public void addParticipatingArtist(Artist artist) {
         participatingArtists.add(artist);
+    }
+
+    public Set<Ticket> getTickets() {
+        return tickets;
+    }
+
+    public void setTickets(Set<Ticket> tickets) {
+        this.tickets = tickets;
     }
 }
