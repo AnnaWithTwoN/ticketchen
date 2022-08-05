@@ -1,13 +1,11 @@
 package com.annawithtwon.ticketchen.event;
 
 import com.annawithtwon.ticketchen.artist.Artist;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,18 +34,14 @@ public class Event {
     // TODO: ensure date is not in the past
     private OffsetDateTime date;
 
-    @ManyToMany(fetch = FetchType.LAZY,
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE
-            })
+
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "artist_event",
             joinColumns = { @JoinColumn(name = "event_id") },
             inverseJoinColumns = { @JoinColumn(name = "artist_id") })
     @NotNull
     @NotEmpty
-    // TODO: add cascade
-    private Set<Artist> participatingArtists = new HashSet<>();
+    private Set<Artist> participatingArtists = new HashSet<>(); // TODO: add cascade
 
     public Event() {
     }

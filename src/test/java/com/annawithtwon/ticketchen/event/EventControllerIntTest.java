@@ -128,13 +128,13 @@ class EventControllerIntTest {
 
     @Test
     void shouldReturnErrorWhenNoArtistProvided() throws Exception {
-        String expectedErrorMessage = ErrorMessage.ARTIST_NOT_FOUND.toString();
+        String expectedErrorMessage = ErrorMessage.PARAMETER_MISSING.toString();
         mockMvc.perform(
                 post("/events")
                         .content("{\n" +
                                 "    \"name\": \"Hellfest\",\n" +
                                 "    \"location\": \"Clisson, France\",\n" +
-                                "    \"date\": \"2022-05-14T14:20:32.0+07:00\",\n" +
+                                "    \"date\": \"2022-05-14T14:20:32.0+07:00\"\n" +
                                 "}")
                         .contentType(MediaType.APPLICATION_JSON)
                 )

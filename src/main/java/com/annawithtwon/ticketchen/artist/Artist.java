@@ -19,7 +19,7 @@ public class Artist {
     private String name; // TODO: add unique constraint
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "participatingArtists")
+    @ManyToMany(mappedBy = "participatingArtists", fetch = FetchType.LAZY)
     private Set<Event> events = new HashSet<>();
 
     @Formula(value = "(SELECT COUNT(*) FROM public.artist_event e WHERE e.artist_id=id)")
@@ -28,6 +28,11 @@ public class Artist {
     public Artist() { }
 
     public Artist(String name) {
+        this.name = name;
+    }
+
+    public Artist(UUID id, String name) {
+        this.id = id;
         this.name = name;
     }
 

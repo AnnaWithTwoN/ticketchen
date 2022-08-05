@@ -4,7 +4,9 @@ public enum ErrorMessage {
     ARTIST_NOT_FOUND(createNotFoundErrorMessage("Artist")),
     EVENT_NOT_FOUND(createNotFoundErrorMessage("Event")),
     ARTIST_EXISTS(createExistsErrorMessage("Artist")),
-    EVENT_EXISTS(createExistsErrorMessage("Event"));
+    EVENT_EXISTS(createExistsErrorMessage("Event")),
+
+    PARAMETER_MISSING("Missing required parameter");
 
     private final String message;
 

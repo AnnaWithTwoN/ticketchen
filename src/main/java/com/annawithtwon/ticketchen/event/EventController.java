@@ -1,5 +1,6 @@
 package com.annawithtwon.ticketchen.event;
 
+import com.annawithtwon.ticketchen.event.dto.EventCreateDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +30,7 @@ public class EventController {
     }
 
     @PostMapping
-    public Event createEvent(@Valid @RequestBody Event event) {
+    public Event createEvent(@Valid @RequestBody EventCreateDTO event) {
         return eventService.createEvent(event);
     }
 }
