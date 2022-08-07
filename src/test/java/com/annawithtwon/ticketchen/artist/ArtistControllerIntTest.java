@@ -3,6 +3,8 @@ package com.annawithtwon.ticketchen.artist;
 import com.annawithtwon.ticketchen.event.Event;
 import com.annawithtwon.ticketchen.event.EventRepository;
 import com.annawithtwon.ticketchen.exception.ErrorMessage;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class ArtistControllerIntTest {
 
+    private final String UrlPath = "/artists";
+
+    private String jwtAdminToken = "Bearer " + JWT.create()
+            .withSubject("username")
+            .withClaim("role", "admin")
+            .sign(Algorithm.HMAC256("poke".getBytes()));
+
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -56,14 +65,14 @@ class ArtistControllerIntTest {
 
         // act - assert
         mockMvc.perform(
-                    get("/artists")
+                    get(UrlPath)
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*", hasSize(3)))
-                .andExpect(jsonPath("$.*.id").exists())
-                .andExpect(jsonPath("$.*.name").exists())
-                .andExpect(jsonPath("$.*.numberOfEvents").exists());
+                .andExpect(jsonPath("$.items.*", hasSize(3)))
+                .andExpect(jsonPath("$.items.*.id").exists())
+                .andExpect(jsonPath("$.items.*.name").exists())
+                .andExpect(jsonPath("$.items.*.numberOfEvents").exists());
     }
 
     @Test
@@ -71,7 +80,7 @@ class ArtistControllerIntTest {
         Artist artist = artistRepository.save(new Artist("artist"));
 
         mockMvc.perform(
-                    get("/artists/" + artist.getId())
+                    get(UrlPath + "/" + artist.getId())
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -86,7 +95,7 @@ class ArtistControllerIntTest {
         eventRepository.save(new Event("name", "location", OffsetDateTime.now(), Set.of(artist)));
 
         mockMvc.perform(
-                        get("/artists/" + artist.getId())
+                        get(UrlPath + "/" + artist.getId())
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -101,7 +110,7 @@ class ArtistControllerIntTest {
         String expectedErrorMessage = ErrorMessage.ARTIST_NOT_FOUND.toString();
 
         mockMvc.perform(
-                    get("/artists/" + id)
+                    get(UrlPath + "/" + id)
                 )
                 .andDo(print())
                 .andExpect(status().isNotFound())
@@ -113,9 +122,10 @@ class ArtistControllerIntTest {
     void shouldCreateArtist() throws Exception {
         String name = "Sabaton";
         MvcResult result = mockMvc.perform(
-                    post("/artists")
-                        .content("{\"name\": \"" + name + "\"}")
-                        .contentType(MediaType.APPLICATION_JSON)
+                    post(UrlPath)
+                            .header("Authorization", jwtAdminToken)
+                            .content("{\"name\": \"" + name + "\"}")
+                            .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -136,7 +146,8 @@ class ArtistControllerIntTest {
         String expectedErrorMessage = ErrorMessage.ARTIST_EXISTS.toString();
 
         mockMvc.perform(
-                    post("/artists")
+                    post(UrlPath)
+                            .header("Authorization", jwtAdminToken)
                             .content("{\"name\": \"" + name + "\"}")
                             .contentType(MediaType.APPLICATION_JSON)
                 )

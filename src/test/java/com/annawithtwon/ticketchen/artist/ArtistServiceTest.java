@@ -1,5 +1,6 @@
 package com.annawithtwon.ticketchen.artist;
 
+import com.annawithtwon.ticketchen.common.PaginatedResponseDTO;
 import com.annawithtwon.ticketchen.exception.ErrorMessage;
 import com.annawithtwon.ticketchen.exception.ResourceExistsException;
 import org.junit.jupiter.api.Test;
@@ -7,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -21,22 +24,6 @@ class ArtistServiceTest {
     private ArtistRepository repository;
     @InjectMocks
     private ArtistService service;
-
-    @Test
-    void shouldReturnAllArtists() {
-        // arrange
-        List<Artist> expectedArtists = List.of(
-                new Artist("artist1"),
-                new Artist("artist2")
-        );
-        when(repository.findAll()).thenReturn(expectedArtists);
-
-        // act
-        List<Artist> artists = service.getAllArtists();
-
-        // assert
-        assertThat(artists).isEqualTo(expectedArtists);
-    }
 
     @Test
     void shouldCreateArtist() {

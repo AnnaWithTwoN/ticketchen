@@ -3,6 +3,8 @@ package com.annawithtwon.ticketchen.event;
 import com.annawithtwon.ticketchen.artist.Artist;
 import com.annawithtwon.ticketchen.artist.ArtistRepository;
 import com.annawithtwon.ticketchen.exception.ErrorMessage;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class EventControllerIntTest {
+
+    private final String UrlPath = "/events";
+
+    private String jwtAdminToken = "Bearer " + JWT.create()
+            .withSubject("username")
+            .withClaim("role", "admin")
+            .sign(Algorithm.HMAC256("poke".getBytes()));
 
     @Autowired
     private MockMvc mockMvc;
@@ -52,15 +61,15 @@ class EventControllerIntTest {
 
         // act - assert
         mockMvc.perform(
-                        get("/events")
+                        get(UrlPath)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*", hasSize(3)))
-                .andExpect(jsonPath("$.*.id").exists())
-                .andExpect(jsonPath("$.*.name").exists())
-                .andExpect(jsonPath("$.*.location").exists())
-                .andExpect(jsonPath("$.*.date").exists())
-                .andExpect(jsonPath("$.*.participatingArtists").exists());
+                .andExpect(jsonPath("$.items.*", hasSize(3)))
+                .andExpect(jsonPath("$.items.*.id").exists())
+                .andExpect(jsonPath("$.items.*.name").exists())
+                .andExpect(jsonPath("$.items.*.location").exists())
+                .andExpect(jsonPath("$.items.*.date").exists())
+                .andExpect(jsonPath("$.items.*.participatingArtists").exists());
     }
 
     @Test
@@ -75,7 +84,7 @@ class EventControllerIntTest {
         eventRepository.save(expectedEvent);
 
         mockMvc.perform(
-                        get("/events/" + expectedEvent.getId())
+                        get(UrlPath + "/" + expectedEvent.getId())
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(expectedEvent.getId().toString()))
@@ -92,7 +101,7 @@ class EventControllerIntTest {
         String expectedErrorMessage = ErrorMessage.EVENT_NOT_FOUND.toString();
 
         mockMvc.perform(
-                        get("/events/" + id)
+                        get(UrlPath + "/" + id)
                 )
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message")
@@ -103,7 +112,8 @@ class EventControllerIntTest {
     void shouldCreateArtist() throws Exception {
         Artist artist = artistRepository.save(new Artist("artist"));
         MvcResult result = mockMvc.perform(
-                        post("/events")
+                        post(UrlPath)
+                                .header("Authorization", jwtAdminToken)
                                 .content("{\n" +
                                         "    \"name\": \"Hellfest\",\n" +
                                         "    \"location\": \"Clisson, France\",\n" +
@@ -130,7 +140,8 @@ class EventControllerIntTest {
     void shouldReturnErrorWhenNoArtistProvided() throws Exception {
         String expectedErrorMessage = ErrorMessage.PARAMETER_MISSING.toString();
         mockMvc.perform(
-                post("/events")
+                post(UrlPath)
+                        .header("Authorization", jwtAdminToken)
                         .content("{\n" +
                                 "    \"name\": \"Hellfest\",\n" +
                                 "    \"location\": \"Clisson, France\",\n" +
@@ -147,7 +158,8 @@ class EventControllerIntTest {
     void shouldReturnErrorWhenArtistDoesNotExist() throws Exception {
         String expectedErrorMessage = ErrorMessage.ARTIST_NOT_FOUND.toString();
         mockMvc.perform(
-                        post("/events")
+                        post(UrlPath)
+                                .header("Authorization", jwtAdminToken)
                                 .content("{\n" +
                                         "    \"name\": \"Hellfest\",\n" +
                                         "    \"location\": \"Clisson, France\",\n" +

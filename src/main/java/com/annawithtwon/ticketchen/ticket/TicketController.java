@@ -1,5 +1,6 @@
 package com.annawithtwon.ticketchen.ticket;
 
+import com.annawithtwon.ticketchen.common.PaginatedResponseDTO;
 import com.annawithtwon.ticketchen.ticket.dto.TicketCreateDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +21,13 @@ public class TicketController {
     }
 
     @GetMapping
-    public List<Ticket> getAllTickets() {
-        return ticketService.getAllTickets();
+    public PaginatedResponseDTO<Ticket> getAllTickets(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) boolean desc
+    ) {
+        return ticketService.getAllTickets(page, size, sort, desc);
     }
 
     @GetMapping(path = "{ticketId}")

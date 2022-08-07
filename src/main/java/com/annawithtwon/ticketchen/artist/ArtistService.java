@@ -1,12 +1,15 @@
 package com.annawithtwon.ticketchen.artist;
 
+import com.annawithtwon.ticketchen.common.PaginatedResponseDTO;
 import com.annawithtwon.ticketchen.exception.ErrorMessage;
 import com.annawithtwon.ticketchen.exception.ResourceExistsException;
 import com.annawithtwon.ticketchen.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,8 +23,21 @@ public class ArtistService {
         this.artistRepository = artistRepository;
     }
 
-    public List<Artist> getAllArtists() {
-        return artistRepository.findAll();
+    public PaginatedResponseDTO<Artist> getAllArtists(int page, int size, String sort, boolean desc) {
+        PageRequest request = PageRequest.of(page, size);
+        if (sort != null) {
+            request = request.withSort(
+                    desc ? Sort.Direction.DESC : Sort.Direction.ASC,
+                    sort
+            );
+        }
+        Page<Artist> response = artistRepository.findAll(request);
+        return new PaginatedResponseDTO(
+                response.toList(),
+                response.getNumber(),
+                response.getSize(),
+                response.getTotalPages()
+        );
     }
 
     public Artist getOneArtist(UUID id) throws ResourceNotFoundException {

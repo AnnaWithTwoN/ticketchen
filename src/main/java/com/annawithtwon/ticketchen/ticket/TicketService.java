@@ -1,5 +1,7 @@
 package com.annawithtwon.ticketchen.ticket;
 
+import com.annawithtwon.ticketchen.artist.Artist;
+import com.annawithtwon.ticketchen.common.PaginatedResponseDTO;
 import com.annawithtwon.ticketchen.event.Event;
 import com.annawithtwon.ticketchen.event.EventService;
 import com.annawithtwon.ticketchen.exception.ErrorMessage;
@@ -8,6 +10,9 @@ import com.annawithtwon.ticketchen.exception.ResourceNotFoundException;
 import com.annawithtwon.ticketchen.ticket.dto.TicketCreateDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,8 +33,21 @@ public class TicketService {
         this.eventService = eventService;
     }
 
-    public List<Ticket> getAllTickets() {
-        return ticketRepository.findAll();
+    public PaginatedResponseDTO<Ticket> getAllTickets(int page, int size, String sort, boolean desc) {
+        PageRequest request = PageRequest.of(page, size);
+        if (sort != null) {
+            request = request.withSort(
+                    desc ? Sort.Direction.DESC : Sort.Direction.ASC,
+                    sort
+            );
+        }
+        Page<Ticket> response = ticketRepository.findAll(request);
+        return new PaginatedResponseDTO(
+                response.toList(),
+                response.getNumber(),
+                response.getSize(),
+                response.getTotalPages()
+        );
     }
 
     public Ticket getOneTicket(UUID id) {

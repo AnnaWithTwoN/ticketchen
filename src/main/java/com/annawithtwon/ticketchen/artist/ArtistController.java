@@ -1,9 +1,9 @@
 package com.annawithtwon.ticketchen.artist;
 
+import com.annawithtwon.ticketchen.common.PaginatedResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -18,8 +18,13 @@ public class ArtistController {
     }
 
     @GetMapping
-    public List<Artist> getAllArtists() {
-        return artistService.getAllArtists();
+    public PaginatedResponseDTO<Artist> getAllArtists(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) boolean desc
+    ) {
+        return artistService.getAllArtists(page, size, sort, desc);
     }
 
     @GetMapping(path = "{artistId}")
