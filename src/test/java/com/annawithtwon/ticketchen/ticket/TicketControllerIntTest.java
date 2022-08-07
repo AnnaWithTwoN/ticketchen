@@ -1,6 +1,5 @@
 package com.annawithtwon.ticketchen.ticket;
 
-import com.annawithtwon.ticketchen.artist.Artist;
 import com.annawithtwon.ticketchen.event.Event;
 import com.annawithtwon.ticketchen.event.EventRepository;
 import com.annawithtwon.ticketchen.exception.ErrorMessage;
@@ -21,7 +20,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -29,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class TicketControllerTest {
+class TicketControllerIntTest {
 
     @Autowired
     private MockMvc mockMvc;
