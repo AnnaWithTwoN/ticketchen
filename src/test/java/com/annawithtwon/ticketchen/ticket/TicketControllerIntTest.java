@@ -3,6 +3,8 @@ package com.annawithtwon.ticketchen.ticket;
 import com.annawithtwon.ticketchen.event.Event;
 import com.annawithtwon.ticketchen.event.EventRepository;
 import com.annawithtwon.ticketchen.exception.ErrorMessage;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +31,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class TicketControllerIntTest {
 
+    private final String UrlPath = "/tickets";
+
+    private String jwtAdminToken = "Bearer " + JWT.create()
+            .withSubject("username")
+            .withClaim("role", "admin")
+            .sign(Algorithm.HMAC256("poke".getBytes()));
+
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -53,14 +62,14 @@ class TicketControllerIntTest {
 
         // act - assert
         mockMvc.perform(
-                        get("/tickets")
+                        get(UrlPath)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.*", hasSize(2)))
-                .andExpect(jsonPath("$.*.id").exists())
-                .andExpect(jsonPath("$.*.event").exists())
-                .andExpect(jsonPath("$.*.section").exists())
-                .andExpect(jsonPath("$.*.price").exists());
+                .andExpect(jsonPath("$.items.*", hasSize(2)))
+                .andExpect(jsonPath("$.items.*.id").exists())
+                .andExpect(jsonPath("$.items.*.event").exists())
+                .andExpect(jsonPath("$.items.*.section").exists())
+                .andExpect(jsonPath("$.items.*.price").exists());
     }
 
     @Test
@@ -68,7 +77,7 @@ class TicketControllerIntTest {
         String expectedErrorMessage = ErrorMessage.TICKET_NOT_FOUND.toString();
 
         mockMvc.perform(
-                        get("/tickets/" + UUID.randomUUID())
+                        get(UrlPath + "/" + UUID.randomUUID())
                 )
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message")
@@ -79,7 +88,8 @@ class TicketControllerIntTest {
     void shouldCreateEvent() throws Exception {
         Event randomEvent = eventRepository.save(new Event("Nashestvije", "Russia", OffsetDateTime.now()));
         MvcResult result = mockMvc.perform(
-                        post("/tickets")
+                        post(UrlPath)
+                                .header("Authorization", jwtAdminToken)
                                 .content("{\n" +
                                         "    \"eventId\": \"" + randomEvent.getId() + "\",\n" +
                                         "    \"section\": \"1\",\n" +
@@ -104,7 +114,8 @@ class TicketControllerIntTest {
         String expectedErrorMessage = ErrorMessage.PARAMETER_MISSING.toString();
 
         mockMvc.perform(
-                        post("/tickets")
+                        post(UrlPath)
+                                .header("Authorization", jwtAdminToken)
                                 .content("{\n" +
                                         "    \"section\": \"1\",\n" +
                                         "    \"price\": 7800\n" +
@@ -120,7 +131,8 @@ class TicketControllerIntTest {
     void shouldReturnErrorWhenEventDoesNotExist() throws Exception {
         String expectedErrorMessage = ErrorMessage.EVENT_NOT_FOUND.toString();
         mockMvc.perform(
-                        post("/tickets")
+                        post(UrlPath)
+                                .header("Authorization", jwtAdminToken)
                                 .content("{\n" +
                                         "    \"eventId\": \"" + UUID.randomUUID() + "\",\n" +
                                         "    \"section\": \"1\",\n" +
